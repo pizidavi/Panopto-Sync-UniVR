@@ -1,4 +1,5 @@
 requests~=2.26.0
 beautifulsoup4~=4.9.3
 pycryptodome~=3.11.0
+tqdm~=4.62.2
 git+https://github.com/Panopto-Video-DL/Panopto-Video-DL-lib.git@v1.2.0#egg=PanoptoDownloader

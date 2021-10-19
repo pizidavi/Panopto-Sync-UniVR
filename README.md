@@ -10,7 +10,7 @@ git clone https://github.com/pizidavi/Panopto-Sync-UniVR.git
 ```
 2. Install requirements
 ```shell
-python install.py
+pip install -r requirements.txt
 ```
 
 ## Usage
