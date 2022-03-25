@@ -21,7 +21,7 @@ class Panopto:
         if not moodle[1]:
             raise ValueError('Moodle-Referer is required')
 
-        url = '{}/Panopto/Pages/Auth/Login.aspx'.format(self.ORIGIN)
+        url = '{}/Panopto/Pages/Auth/Login.aspx?AllowBounce=true'.format(self.ORIGIN)
         r = requests.get(url, cookies={'MoodleSession': moodle[0]}, headers={'referer': moodle[1]})
 
         if 200 <= r.status_code < 300:
@@ -29,7 +29,7 @@ class Panopto:
             if '.ASPXAUTH' in c:
                 self.__auth = c['.ASPXAUTH']
             else:
-                raise LoginFail('Login failed')
+                raise LoginFail('Login in Panopto failed')
         else:
             raise RequestException('RequestException')
 
