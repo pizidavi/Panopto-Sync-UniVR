@@ -78,7 +78,7 @@ def sync(username, password) -> None:
                 continue
             logger.info('%s new lessons found in "%s"', len(new_lessons), course['name'])
 
-            for lesson in new_lessons:
+            for lesson in new_lessons[::-1]:
                 lesson['course'] = course['id']  # Add CourseID to lesson
 
                 if not ARGS.skip_download:
