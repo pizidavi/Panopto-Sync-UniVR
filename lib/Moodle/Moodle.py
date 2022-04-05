@@ -8,7 +8,7 @@ from utils import parsers
 class Moodle:
 
     ORIGIN = 'https://moodledidattica.univr.it'
-    SSO = 'https://giasso.univr.it'
+    SSO = 'https://aap.univr.it'
 
     def __init__(self):
         self.__session = None
@@ -34,31 +34,32 @@ class Moodle:
 
         if self.__session is None and self.__sess_key is None:
             url = '{}/auth/shibboleth/index.php'.format(self.ORIGIN)
+            cookies = None
         else:
             url = '{}/'.format(self.ORIGIN)
-        r = requests.get(url, cookies={'MoodleSession': self.__session})
+            cookies = {'MoodleSession': self.__session}
+
+        r = requests.get(url, cookies=cookies)
 
         if 200 <= r.status_code < 300:
             if self.SSO in r.url:
                 html = parsers.html_parser(r.text)
-                form = html.find('form', attrs={'name': 'Login'})
+                form = html.find('form', attrs={'name': 'loginData'})
                 if not form:
                     raise RuntimeError('Form not found')
 
                 method = form.get('method')
                 action = self.SSO + form.get('action')
                 data = {
-                    'IDToken0': '',
-                    'IDToken1': username,
-                    'IDToken2': password,
-                    'IDButton': 'Log In'
+                    'form_username': username,
+                    'form_password': password,
+                    'request_id': form.find('input', attrs={'name': 'request_id'}),
+                    'form_spidprovider': 'nospid'
                 }
-                for i in form.find_all('input'):
-                    data[i.get('name')] = i.get('value') or ''
 
                 re = requests.request(method, action, data=data, cookies=r.cookies,
                                       headers={'Content-Type': 'application/x-www-form-urlencoded'})
-                if 200 <= r.status_code < 300:
+                if 200 <= re.status_code < 300:
                     _html = parsers.html_parser(re.text)
                     _form = _html.find('form')
 
@@ -90,8 +91,10 @@ class Moodle:
                         raise RequestException('RequestException')
                 else:
                     raise RequestException('RequestException')
-            else:  # Already logged
+            elif self.ORIGIN in r.url:  # Already logged
                 pass
+            else:
+                raise RequestException('RequestException')
         else:
             raise RequestException('RequestException')
 
