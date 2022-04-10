@@ -53,7 +53,7 @@ class Moodle:
                 data = {
                     'form_username': username,
                     'form_password': password,
-                    'request_id': form.find('input', attrs={'name': 'request_id'}),
+                    'request_id': form.find('input', attrs={'name': 'request_id'}).get('value'),
                     'form_spidprovider': 'nospid'
                 }
 
@@ -62,6 +62,12 @@ class Moodle:
                 if 200 <= re.status_code < 300:
                     _html = parsers.html_parser(re.text)
                     _form = _html.find('form')
+                    if not _form:
+                        raise RuntimeError('_Form not found')
+
+                    login_failed = _form.find('p', attrs={'class': 'loginFailed'})
+                    if login_failed:
+                        raise RuntimeError('Authentication failed')
 
                     _method = _form.get('method')
                     _action = _form.get('action')
